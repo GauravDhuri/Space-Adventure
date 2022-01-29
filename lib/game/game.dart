@@ -4,12 +4,17 @@ import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
+import 'package:space_adventure/game/enemy.dart';
 import 'package:space_adventure/game/enemy_manager.dart';
 import 'package:space_adventure/game/player.dart';
 
-class SpaceAdventure extends FlameGame with PanDetector {
+import 'bullet.dart';
+
+class SpaceAdventure extends FlameGame with PanDetector, TapDetector {
 
   late Player player;
+  late SpriteSheet _spriteSheet;
+  late EnemyManger _enemyManger;
   Offset? _pointerStartPosition;
   Offset? _pointerCurrentPosition;
   final double _deadZoneRadius = 10;
@@ -18,13 +23,13 @@ class SpaceAdventure extends FlameGame with PanDetector {
   Future<void> onLoad() async {
     await images.load('spaceShooter.png');
 
-    final spriteSheet = SpriteSheet.fromColumnsAndRows(
+    _spriteSheet = SpriteSheet.fromColumnsAndRows(
       image: images.fromCache('spaceShooter.png'),
-      columns: 2,
-      rows: 2);
+      columns: 5,
+      rows: 1);
       
       player = Player(
-        sprite: spriteSheet.getSpriteById(3),
+        sprite: _spriteSheet.getSpriteById(3),
         size: Vector2(64,64),
         position: canvasSize /2
       );
@@ -32,8 +37,8 @@ class SpaceAdventure extends FlameGame with PanDetector {
       player.anchor = Anchor.center;
       add(player);
 
-      EnemyManger enemyManger = EnemyManger(spriteSheet: spriteSheet);
-      add(enemyManger);
+      _enemyManger = EnemyManger(spriteSheet: _spriteSheet);
+      add(_enemyManger);
   }
 
   @override
@@ -62,6 +67,29 @@ class SpaceAdventure extends FlameGame with PanDetector {
           Paint()..color = Colors.white.withAlpha(100));
       }
     }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    final bullets = children.whereType<Bullet>();
+
+    for(final enemy in _enemyManger.children.whereType<Enemy>()){
+      if(enemy.shouldRemove){
+        continue;
+      }
+      for(final bullet in bullets){
+        if(bullet.shouldRemove){
+          continue;
+        }
+        if(enemy.containsPoint(bullet.absoluteCenter)) {
+          enemy.removeFromParent();
+          bullet.removeFromParent();
+          break;
+        }
+      }
+    }
+  }
 
   @override
   void onPanStart(DragStartInfo info) {
@@ -98,5 +126,19 @@ class SpaceAdventure extends FlameGame with PanDetector {
   @override
   void onGameResize(Vector2 canvasSize) {
     super.onGameResize(canvasSize);
+  }
+
+  @override
+  void onTapDown(TapDownInfo info) {
+    super.onTapDown(info);
+
+    Bullet bullet = Bullet(
+       sprite: _spriteSheet.getSpriteById(0),
+        size: Vector2(64,64),
+        position: player.position
+    );
+
+    bullet.anchor = Anchor.center;
+    add(bullet);
   }
 }

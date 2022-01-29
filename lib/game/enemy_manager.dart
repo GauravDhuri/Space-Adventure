@@ -27,7 +27,7 @@ class EnemyManger extends Component with HasGameRef {
     );
 
     Enemy enemy = Enemy(
-      sprite: spriteSheet.getSpriteById(2),
+      sprite: spriteSheet.getSpriteById(1),
       size: initialSize,
       position: position
     );

@@ -19,15 +19,7 @@ class Enemy extends SpriteComponent with HasGameRef{
     position += Vector2(0,1) * _speed * dt;
 
     if(position.y > gameRef.size.y) {
-      // remove(Enemy());
-      // wait for dev confirmation
+      removeFromParent();
     }
-  }
-
-  @override
-  void onRemove() {
-    // TODO: implement onRemove
-    super.onRemove();
-    print('Remove the ${this.toString()}');
   }
 }
