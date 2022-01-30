@@ -32,7 +32,7 @@ class EnemyManger extends Component with HasGameRef {
       position: position
     );
     enemy.anchor = Anchor.center;
-    add(enemy);
+    gameRef.add(enemy);
   }
 
   @override

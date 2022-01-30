@@ -4,13 +4,11 @@ import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
-import 'package:space_adventure/game/enemy.dart';
+import 'package:space_adventure/game/bullet.dart';
 import 'package:space_adventure/game/enemy_manager.dart';
 import 'package:space_adventure/game/player.dart';
 
-import 'bullet.dart';
-
-class SpaceAdventure extends FlameGame with PanDetector, TapDetector {
+class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollidables {
 
   late Player player;
   late SpriteSheet _spriteSheet;
@@ -52,44 +50,48 @@ class SpaceAdventure extends FlameGame with PanDetector, TapDetector {
           Paint()..color = Colors.grey.withAlpha(100));
       }
 
-      if(_pointerCurrentPosition !=null){
+      if(_pointerCurrentPosition !=null) {
         var delta = _pointerCurrentPosition! - _pointerStartPosition!;
         if(delta.distance > 60){
-          delta = _pointerStartPosition! 
-          + (Vector2(delta.dx,delta.dy).normalized() * 60).toOffset();
+          delta = _pointerStartPosition! + (Vector2(delta.dx,delta.dy).normalized() * 60).toOffset();
         } else {
           delta = _pointerCurrentPosition!;
         }
 
         canvas.drawCircle(
-          _pointerCurrentPosition!,
+          delta,
           20,
           Paint()..color = Colors.white.withAlpha(100));
       }
     }
 
-  @override
-  void update(double dt) {
-    super.update(dt);
+  // old code better to use Hitbox and Colliable mixins provided in latest flame engine
+  // @override
+  // void update(double dt) {
+  //   super.update(dt);
 
-    final bullets = children.whereType<Bullet>();
+  //   final bullets = children.whereType<Bullet>();
 
-    for(final enemy in _enemyManger.children.whereType<Enemy>()){
-      if(enemy.shouldRemove){
-        continue;
-      }
-      for(final bullet in bullets){
-        if(bullet.shouldRemove){
-          continue;
-        }
-        if(enemy.containsPoint(bullet.absoluteCenter)) {
-          enemy.removeFromParent();
-          bullet.removeFromParent();
-          break;
-        }
-      }
-    }
-  }
+  //   for(final enemy in _enemyManger.children.whereType<Enemy>()){
+  //     if(enemy.shouldRemove){
+  //       continue;
+  //     }
+  //     for(final bullet in bullets){
+  //       if(bullet.shouldRemove){
+  //         continue;
+  //       }
+  //       if(enemy.containsPoint(bullet.absoluteCenter)) {
+  //         enemy.removeFromParent();
+  //         bullet.removeFromParent();
+  //         break;
+  //       }
+  //     }
+
+  //     if(player.containsPoint(enemy.absoluteCenter)) {
+  //       print("Enemy hit the player");
+  //     }
+  //   }
+  // }
 
   @override
   void onPanStart(DragStartInfo info) {
