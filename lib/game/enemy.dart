@@ -5,6 +5,7 @@ import 'package:flame/geometry.dart';
 import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
 import 'package:space_adventure/game/bullet.dart';
+import 'package:space_adventure/game/player.dart';
 
 class Enemy extends SpriteComponent with HasGameRef, HasHitboxes, Collidable{
   
@@ -33,7 +34,7 @@ class Enemy extends SpriteComponent with HasGameRef, HasHitboxes, Collidable{
   void onCollision(Set<Vector2> intersectionPoints, Collidable other) {
     super.onCollision(intersectionPoints, other);
 
-    if(other is Bullet) {
+    if(other is Bullet || other is Player) {
       removeFromParent();
 
       final particleComponent = ParticleComponent(
