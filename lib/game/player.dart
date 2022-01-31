@@ -11,6 +11,11 @@ class Player extends SpriteComponent with HasGameRef, HasHitboxes, Collidable {
 
   final double _speed = 300;
 
+  int _score = 0;
+  int get score => _score;
+  int _health = 100;
+  int get health => _health;
+
   final Random _random = Random();
   Vector2 getRandomVector() {
     return (Vector2.random(_random)- Vector2(0.5,-0.4)) * 150;
@@ -35,7 +40,12 @@ class Player extends SpriteComponent with HasGameRef, HasHitboxes, Collidable {
     super.onCollision(intersectionPoints, other);
 
     if(other is Enemy) {
-      // print('Player is hit');
+      gameRef.camera.shake();
+
+      _health -= 10;
+      if(health <= 0){
+        _health = 0;
+      }
     }
   }
 
@@ -66,5 +76,9 @@ class Player extends SpriteComponent with HasGameRef, HasHitboxes, Collidable {
 
   void setMoveDreciton(Vector2 newMoveDirection) {
     _moveDirection = newMoveDirection;
+  }
+
+  void addToScore(int points){
+    _score += points;
   }
 }

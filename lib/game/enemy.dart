@@ -5,9 +5,11 @@ import 'package:flame/geometry.dart';
 import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
 import 'package:space_adventure/game/bullet.dart';
+import 'package:space_adventure/game/command.dart';
+import 'package:space_adventure/game/game.dart';
 import 'package:space_adventure/game/player.dart';
 
-class Enemy extends SpriteComponent with HasGameRef, HasHitboxes, Collidable{
+class Enemy extends SpriteComponent with HasGameRef<SpaceAdventure>, HasHitboxes, Collidable{
   
   final double _speed = 250; 
 
@@ -36,6 +38,11 @@ class Enemy extends SpriteComponent with HasGameRef, HasHitboxes, Collidable{
 
     if(other is Bullet || other is Player) {
       removeFromParent();
+
+      final command = Command<Player>(action: (player){
+        player.addToScore(1);
+      });
+      gameRef.addCommand(command);
 
       final particleComponent = ParticleComponent(
       Particle.generate(

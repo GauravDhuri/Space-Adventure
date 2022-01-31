@@ -5,14 +5,22 @@ import 'package:flame/input.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 import 'package:space_adventure/game/bullet.dart';
+import 'package:space_adventure/game/command.dart';
 import 'package:space_adventure/game/enemy_manager.dart';
 import 'package:space_adventure/game/player.dart';
 
 class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollidables {
 
-  late Player player;
+  late Player _player;
   late SpriteSheet _spriteSheet;
   late EnemyManger _enemyManger;
+
+  late TextComponent _playerScore;
+  late TextComponent _playerHealth;
+
+  final _commandList = List<Command>.empty(growable: true);
+  final _addLaterCommandList = List<Command>.empty(growable: true);
+
   Offset? _pointerStartPosition;
   Offset? _pointerCurrentPosition;
   final double _deadZoneRadius = 10;
@@ -26,18 +34,48 @@ class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollid
       columns: 5,
       rows: 1);
       
-      player = Player(
+      _player = Player(
         sprite: _spriteSheet.getSpriteById(3),
         size: Vector2(64,64),
         position: canvasSize /2
       );
 
-      player.anchor = Anchor.center;
-      add(player);
-
+      _player.anchor = Anchor.center;
+      add(_player);
+      
       _enemyManger = EnemyManger(spriteSheet: _spriteSheet);
       add(_enemyManger);
+
+      _playerScore = TextComponent(
+        text: 'Score: 0',
+        position: Vector2(10,10),
+        textRenderer: TextPaint(
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16
+          )
+        )
+      );
+
+      add(_playerScore);
+      
+      _playerHealth = TextComponent(
+        text: 'Healthe: 100%',
+        position: Vector2(size.x-10,10),
+        textRenderer: TextPaint(
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16
+          )
+        )
+      );
+
+      _playerHealth.anchor = Anchor.topRight;
+      add(_playerHealth);
+
+      camera.defaultShakeIntensity = 20;
   }
+
 
   @override
     void render(Canvas canvas){
@@ -63,7 +101,37 @@ class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollid
           20,
           Paint()..color = Colors.white.withAlpha(100));
       }
+
+      canvas.drawRect(
+        Rect.fromLTWH(
+          size.x - 110, 10, _player.health.toDouble(),
+          20
+        ),
+        Paint()..color = Colors.blue,
+      );
     }
+
+    void addCommand(Command command){
+      _addLaterCommandList.add(command);
+    }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    _commandList.forEach((commad) {
+      children.forEach((element) {
+        commad.run(element);
+      });
+    });
+
+    _commandList.clear();
+    _commandList.addAll(_addLaterCommandList);
+    _addLaterCommandList.clear();
+
+    _playerScore.text = 'Score: ${_player.score}';
+    _playerHealth.text = 'Health: ${_player.health}';
+  }
 
   // old code better to use Hitbox and Colliable mixins provided in latest flame engine
   // @override
@@ -105,9 +173,9 @@ class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollid
 
     var delta = _pointerCurrentPosition! - _pointerStartPosition!;
     if(delta.distance > _deadZoneRadius) {
-      player.setMoveDreciton(Vector2(delta.dx,delta.dy));
+      _player.setMoveDreciton(Vector2(delta.dx,delta.dy));
     } else {
-      player.setMoveDreciton(Vector2.zero());
+      _player.setMoveDreciton(Vector2.zero());
     }
   }
 
@@ -115,14 +183,14 @@ class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollid
   void onPanEnd(DragEndInfo info) {
     _pointerStartPosition = null;
     _pointerCurrentPosition = null;
-    player.setMoveDreciton(Vector2.zero());
+    _player.setMoveDreciton(Vector2.zero());
   }
 
   @override
   void onPanCancel() {
     _pointerStartPosition = null;
     _pointerCurrentPosition = null;
-    player.setMoveDreciton(Vector2.zero());
+    _player.setMoveDreciton(Vector2.zero());
   }
 
   @override
@@ -137,7 +205,7 @@ class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollid
     Bullet bullet = Bullet(
        sprite: _spriteSheet.getSpriteById(0),
         size: Vector2(64,64),
-        position: player.position
+        position: _player.position
     );
 
     bullet.anchor = Anchor.center;

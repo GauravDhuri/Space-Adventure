@@ -11,18 +11,16 @@ class MainMenu extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 50.0, horizontal: 30.0),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 50.0, horizontal: 30.0),
               child: Text(
                 'Space Adventure',
                 textAlign: TextAlign.center,
-                style: Theme.of(context)
-                  .textTheme
-                  .bodyText1
-                  ?.copyWith(
-                fontSize: 50.0,
+                style: TextStyle(
+                  fontSize: 50.0,
+                  color: Colors.black,
                   shadows: [
-                    const Shadow(
+                    Shadow(
                       blurRadius: 20.0,
                       color: Colors.white,
                       offset: Offset(0,0),
