@@ -9,6 +9,8 @@ import 'package:space_adventure/game/command.dart';
 import 'package:space_adventure/game/enemy_manager.dart';
 import 'package:space_adventure/game/player.dart';
 
+import 'enemy.dart';
+
 class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollidables {
 
   late Player _player;
@@ -21,13 +23,16 @@ class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollid
   final _commandList = List<Command>.empty(growable: true);
   final _addLaterCommandList = List<Command>.empty(growable: true);
 
+  bool _isAlreadyLoaded = false;
+
   Offset? _pointerStartPosition;
   Offset? _pointerCurrentPosition;
   final double _deadZoneRadius = 10;
  
   @override
   Future<void> onLoad() async {
-    await images.load('spaceShooter.png');
+    if(!_isAlreadyLoaded){
+      await images.load('spaceShooter.png');
 
     _spriteSheet = SpriteSheet.fromColumnsAndRows(
       image: images.fromCache('spaceShooter.png'),
@@ -74,6 +79,8 @@ class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollid
       add(_playerHealth);
 
       camera.defaultShakeIntensity = 20;
+    }
+    _isAlreadyLoaded = true;
   }
 
 
@@ -113,6 +120,19 @@ class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollid
 
     void addCommand(Command command){
       _addLaterCommandList.add(command);
+    }
+
+    void reset() {
+      _player.reset();
+      _enemyManger.reset();
+
+      children.whereType<Enemy>().forEach((enemy) {
+        enemy.removeFromParent();
+      });
+
+      children.whereType<Bullet>().forEach((bullet) {
+        bullet.removeFromParent();
+      });
     }
 
   @override

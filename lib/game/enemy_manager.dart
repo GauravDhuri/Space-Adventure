@@ -4,12 +4,12 @@ import 'package:flame/sprite.dart';
 import 'package:space_adventure/game/enemy.dart';
 
 class EnemyManger extends Component with HasGameRef {
-  late Timer timer;
+  late Timer _timer;
   SpriteSheet spriteSheet;
   Random random = Random();
 
   EnemyManger({required this.spriteSheet}) : super() {
-    timer = Timer(
+    _timer = Timer(
       1,
       onTick: () => _spawnEnemy(),
       repeat: true,
@@ -38,18 +38,23 @@ class EnemyManger extends Component with HasGameRef {
   @override
   void onMount() {
     super.onMount();
-    timer.start();
+    _timer.start();
   } 
 
   @override
   void onRemove() {
     super.onRemove();
-    timer.stop();
+    _timer.stop();
   }
 
   @override
   void update(double dt) {
     super.update(dt);
-    timer.update(dt);
+    _timer.update(dt);
+  }
+
+  void reset() {
+    _timer.stop();
+    _timer.start();
   }
 }

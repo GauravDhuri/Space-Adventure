@@ -81,4 +81,10 @@ class Player extends SpriteComponent with HasGameRef, HasHitboxes, Collidable {
   void addToScore(int points){
     _score += points;
   }
+
+  void reset() {
+    _score = 0;
+    _health = 100;
+    position = gameRef.canvasSize / 2;
+  }
 }
