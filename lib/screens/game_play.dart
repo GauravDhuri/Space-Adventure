@@ -1,6 +1,7 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:space_adventure/game/game.dart';
+import 'package:space_adventure/screens/overlays/game_over_menu.dart';
 import 'package:space_adventure/screens/overlays/pause_button.dart';
 import 'package:space_adventure/screens/overlays/pause_menu.dart';
 
@@ -26,6 +27,11 @@ class GamePlay extends StatelessWidget {
             PauseMenu.id : (
               BuildContext context, SpaceAdventure gameRef
             ) => PauseMenu(
+              gameRef: gameRef,
+            ),
+            GameOverMenu.id : (
+              BuildContext context, SpaceAdventure gameRef
+            ) => GameOverMenu(
               gameRef: gameRef,
             ),
           },

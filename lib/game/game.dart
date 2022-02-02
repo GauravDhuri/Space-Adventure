@@ -11,6 +11,9 @@ import 'package:space_adventure/game/enemy_manager.dart';
 import 'package:space_adventure/game/player.dart';
 import 'package:space_adventure/models/player_data.dart';
 import 'package:space_adventure/models/spaceship_details.dart';
+import 'package:space_adventure/screens/overlays/game_over_menu.dart';
+import 'package:space_adventure/screens/overlays/pause_button.dart';
+import 'package:space_adventure/screens/overlays/pause_menu.dart';
 
 import 'enemy.dart';
 
@@ -166,6 +169,31 @@ class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollid
 
     _playerScore.text = 'Score: ${_player.score}';
     _playerHealth.text = 'Health: ${_player.health}';
+
+    if(_player.health <= 0 && (!camera.shaking)){
+      pauseEngine();
+      overlays.remove(PauseButton.id);
+      overlays.add(GameOverMenu.id);
+    }
+  }
+
+  @override
+  void lifecycleStateChange(AppLifecycleState state) {
+
+    switch(state){
+      case AppLifecycleState.resumed:
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        if(_player.health > 0 ){
+          pauseEngine();
+          overlays.remove(PauseButton.id);
+          overlays.add(PauseMenu.id);
+        }
+        break;
+    }
+    super.lifecycleStateChange(state);
   }
 
   // old code better to use Hitbox and Colliable mixins provided in latest flame engine
