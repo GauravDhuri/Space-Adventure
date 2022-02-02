@@ -44,7 +44,7 @@ class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollid
         size: Vector2(64,64),
         position: canvasSize /2
       );
-
+      
       _player.anchor = Anchor.center;
       add(_player);
       
@@ -61,7 +61,7 @@ class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollid
           )
         )
       );
-
+      _playerScore.positionType = PositionType.viewport;
       add(_playerScore);
       
       _playerHealth = TextComponent(
@@ -74,7 +74,7 @@ class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollid
           )
         )
       );
-
+      _playerHealth.positionType = PositionType.viewport;
       _playerHealth.anchor = Anchor.topRight;
       add(_playerHealth);
 
