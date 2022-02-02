@@ -4,17 +4,20 @@ import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:space_adventure/game/bullet.dart';
 import 'package:space_adventure/game/command.dart';
 import 'package:space_adventure/game/enemy_manager.dart';
 import 'package:space_adventure/game/player.dart';
+import 'package:space_adventure/models/player_data.dart';
+import 'package:space_adventure/models/spaceship_details.dart';
 
 import 'enemy.dart';
 
 class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollidables {
 
   late Player _player;
-  late SpriteSheet _spriteSheet;
+  late SpriteSheet spriteSheet;
   late EnemyManger _enemyManger;
 
   late TextComponent _playerScore;
@@ -32,15 +35,19 @@ class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollid
   @override
   Future<void> onLoad() async {
     if(!_isAlreadyLoaded){
-      await images.load('spaceShooter.png');
+      await images.load('Space_Adventure.png');
 
-    _spriteSheet = SpriteSheet.fromColumnsAndRows(
-      image: images.fromCache('spaceShooter.png'),
-      columns: 5,
-      rows: 1);
+    spriteSheet = SpriteSheet.fromColumnsAndRows(
+      image: images.fromCache('Space_Adventure.png'),
+      columns: 4,
+      rows: 4);
+
+      const spaceType = SpaceshipType.eureka;
+      final spaceShip = Spaceship.getSpaceshipByType(spaceType);
       
       _player = Player(
-        sprite: _spriteSheet.getSpriteById(3),
+        spaceshipType: spaceType,
+        sprite: spriteSheet.getSpriteById(spaceShip.spriteId),
         size: Vector2(64,64),
         position: canvasSize /2
       );
@@ -48,7 +55,7 @@ class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollid
       _player.anchor = Anchor.center;
       add(_player);
       
-      _enemyManger = EnemyManger(spriteSheet: _spriteSheet);
+      _enemyManger = EnemyManger(spriteSheet: spriteSheet);
       add(_enemyManger);
 
       _playerScore = TextComponent(
@@ -83,6 +90,14 @@ class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollid
     _isAlreadyLoaded = true;
   }
 
+  @override
+  void onAttach() {
+    if(buildContext != null){
+      final playerData = Provider.of<PlayerData>(buildContext!,listen: false);
+      _player.setSpaceshipType(playerData.spaceshipType);
+    }
+    super.onAttach();
+  }
 
   @override
     void render(Canvas canvas){
@@ -214,16 +229,11 @@ class SpaceAdventure extends FlameGame with  PanDetector, TapDetector, HasCollid
   }
 
   @override
-  void onGameResize(Vector2 canvasSize) {
-    super.onGameResize(canvasSize);
-  }
-
-  @override
   void onTapDown(TapDownInfo info) {
     super.onTapDown(info);
 
     Bullet bullet = Bullet(
-       sprite: _spriteSheet.getSpriteById(0),
+       sprite: spriteSheet.getSpriteById(8),
         size: Vector2(64,64),
         position: _player.position
     );

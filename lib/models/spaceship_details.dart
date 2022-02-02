@@ -1,0 +1,54 @@
+class Spaceship {
+  final String name;
+  final int cost;
+  final double speed;
+  final int spriteId;
+  final String assetPath;
+  final int level;
+
+  const Spaceship({
+    required this.name, 
+    required this.cost, 
+    required this.speed, 
+    required this.spriteId, 
+    required this.assetPath, 
+    required this.level
+  });
+
+  static Spaceship getSpaceshipByType(SpaceshipType spaceshipType) {
+    return spaceships[spaceshipType] ?? spaceships.entries.first.value;
+  }
+
+  static const Map<SpaceshipType, Spaceship> spaceships = {
+    SpaceshipType.eureka: Spaceship(
+      name: 'Eureka',
+      cost: 0,
+      speed: 250,
+      spriteId: 4,
+      assetPath: 'assets/images/Space_ship_1.png',
+      level: 1
+    ),
+    SpaceshipType.destiny: Spaceship(
+      name: 'Destiny',
+      cost: 500,
+      speed: 300,
+      spriteId: 5,
+      assetPath: 'assets/images/Space_ship_2.png',
+      level: 2
+    ),
+    SpaceshipType.enigma: Spaceship(
+      name: 'Enigma',
+      cost: 1000,
+      speed: 450,
+      spriteId: 2,
+      assetPath: 'assets/images/Space_ship_3.png',
+      level: 4
+    ),
+  };
+}
+
+enum SpaceshipType {
+  eureka,
+  destiny,
+  enigma
+}
