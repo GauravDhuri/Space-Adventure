@@ -22,7 +22,7 @@ class PlayerData extends ChangeNotifier {
     'currentSpaceshipType' : SpaceshipType.eureka,
     'ownedspaceshipTypes': [],
     'highScore': 0,
-    'money': 10000,
+    'money': 0,
   };
 
   bool isOwned(SpaceshipType spaceshipType) {

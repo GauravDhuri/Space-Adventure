@@ -19,7 +19,7 @@ import 'package:space_adventure/screens/overlays/pause_menu.dart';
 
 import 'enemy.dart';
 
-class SpaceAdventure extends BaseGame  with  PanDetector, TapDetector, HasCollidables {
+class SpaceAdventure extends BaseGame with HasCollidables, HasDraggableComponents {
 
   late Player _player;
   late SpriteSheet spriteSheet;
@@ -34,9 +34,9 @@ class SpaceAdventure extends BaseGame  with  PanDetector, TapDetector, HasCollid
 
   bool _isAlreadyLoaded = false;
 
-  Offset? _pointerStartPosition;
-  Offset? _pointerCurrentPosition;
-  final double _deadZoneRadius = 10;
+  // Offset? _pointerStartPosition;
+  // Offset? _pointerCurrentPosition;
+  // final double _deadZoneRadius = 10;
  
   @override
   Future<void> onLoad() async {
@@ -45,7 +45,9 @@ class SpaceAdventure extends BaseGame  with  PanDetector, TapDetector, HasCollid
         'Space_Adventure.png',
         'Health.png',
         'Double_Fire.png',
-        'Thunder_strike.png'
+        'Thunder_strike.png',
+        'Freeze.png',
+        'Double_Fire.png'
       ]);
 
     spriteSheet = SpriteSheet.fromColumnsAndRows(
@@ -71,6 +73,26 @@ class SpaceAdventure extends BaseGame  with  PanDetector, TapDetector, HasCollid
 
       _powerUpManager = PowerUpManager();
       add(_powerUpManager);
+
+       final joystick = JoystickComponent(
+        gameRef: this,
+        directional: JoystickDirectional(
+          size: 100,
+        ),
+        actions: [
+          JoystickAction(
+            actionId: 0,
+            size: 60,
+            margin: const EdgeInsets.all(
+              30,
+            ),
+          ),
+        ],
+      );
+
+      // Make sure to add player as an observer of this joystick.
+      joystick.addObserver(_player);
+      add(joystick);
 
     _playerScore = TextComponent(
         'Score: 0',
@@ -118,26 +140,26 @@ class SpaceAdventure extends BaseGame  with  PanDetector, TapDetector, HasCollid
   @override
     void render(Canvas canvas){
 
-      if(_pointerStartPosition !=null){
-        canvas.drawCircle(
-          _pointerStartPosition!,
-          60,
-          Paint()..color = Colors.grey.withAlpha(100));
-      }
+      // if(_pointerStartPosition !=null){
+      //   canvas.drawCircle(
+      //     _pointerStartPosition!,
+      //     60,
+      //     Paint()..color = Colors.grey.withAlpha(100));
+      // }
 
-      if(_pointerCurrentPosition !=null) {
-        var delta = _pointerCurrentPosition! - _pointerStartPosition!;
-        if(delta.distance > 60){
-          delta = _pointerStartPosition! + (Vector2(delta.dx,delta.dy).normalized() * 60).toOffset();
-        } else {
-          delta = _pointerCurrentPosition!;
-        }
+      // if(_pointerCurrentPosition !=null) {
+      //   var delta = _pointerCurrentPosition! - _pointerStartPosition!;
+      //   if(delta.distance > 60){
+      //     delta = _pointerStartPosition! + (Vector2(delta.dx,delta.dy).normalized() * 60).toOffset();
+      //   } else {
+      //     delta = _pointerCurrentPosition!;
+      //   }
 
-        canvas.drawCircle(
-          delta,
-          20,
-          Paint()..color = Colors.white.withAlpha(100));
-      }
+      //   canvas.drawCircle(
+      //     delta,
+      //     20,
+      //     Paint()..color = Colors.white.withAlpha(100));
+      // }
 
       canvas.drawRect(
         Rect.fromLTWH(
@@ -242,48 +264,49 @@ class SpaceAdventure extends BaseGame  with  PanDetector, TapDetector, HasCollid
   //   }
   // }
 
-  @override
-  void onPanStart(DragStartInfo info) {
-    _pointerStartPosition = info.eventPosition.global.toOffset();
-    _pointerCurrentPosition = info.eventPosition.global.toOffset();
-  }
+  // Navtive Tap Controls 
+  // @override
+  // void onPanStart(DragStartInfo info) {
+  //   _pointerStartPosition = info.eventPosition.global.toOffset();
+  //   _pointerCurrentPosition = info.eventPosition.global.toOffset();
+  // }
 
-  @override
-  void onPanUpdate(DragUpdateInfo info) {
-    _pointerCurrentPosition = info.eventPosition.global.toOffset();
+  // @override
+  // void onPanUpdate(DragUpdateInfo info) {
+  //   _pointerCurrentPosition = info.eventPosition.global.toOffset();
 
-    var delta = _pointerCurrentPosition! - _pointerStartPosition!;
-    if(delta.distance > _deadZoneRadius) {
-      _player.setMoveDreciton(Vector2(delta.dx,delta.dy));
-    } else {
-      _player.setMoveDreciton(Vector2.zero());
-    }
-  }
+  //   var delta = _pointerCurrentPosition! - _pointerStartPosition!;
+  //   if(delta.distance > _deadZoneRadius) {
+  //     _player.setMoveDreciton(Vector2(delta.dx,delta.dy));
+  //   } else {
+  //     _player.setMoveDreciton(Vector2.zero());
+  //   }
+  // }
 
-  @override
-  void onPanEnd(DragEndInfo info) {
-    _pointerStartPosition = null;
-    _pointerCurrentPosition = null;
-    _player.setMoveDreciton(Vector2.zero());
-  }
+  // @override
+  // void onPanEnd(DragEndInfo info) {
+  //   _pointerStartPosition = null;
+  //   _pointerCurrentPosition = null;
+  //   _player.setMoveDreciton(Vector2.zero());
+  // }
 
-  @override
-  void onPanCancel() {
-    _pointerStartPosition = null;
-    _pointerCurrentPosition = null;
-    _player.setMoveDreciton(Vector2.zero());
-  }
+  // @override
+  // void onPanCancel() {
+  //   _pointerStartPosition = null;
+  //   _pointerCurrentPosition = null;
+  //   _player.setMoveDreciton(Vector2.zero());
+  // }
 
-  @override
-  void onTapDown(TapDownInfo info) {
-    super.onTapDown(info);
-    Bullet bullet = Bullet(
-       sprite: spriteSheet.getSpriteById(8),
-        size: Vector2(64,64),
-        position: _player.position.clone()
-    );
+  // @override
+  // void onTapDown(TapDownInfo info) {
+  //   super.onTapDown(info);
+  //   Bullet bullet = Bullet(
+  //      sprite: spriteSheet.getSpriteById(8),
+  //       size: Vector2(64,64),
+  //       position: _player.position.clone()
+  //   );
 
-    bullet.anchor = Anchor.center;
-    add(bullet);
-  }
+  //   bullet.anchor = Anchor.center;
+  //   add(bullet);
+  // }
 }

@@ -5,6 +5,8 @@ import 'package:space_adventure/game/enemy.dart';
 class Bullet extends SpriteComponent with Hitbox, Collidable{
   final double _speed = 450;
 
+  Vector2 direction = Vector2(0,-1);
+
   Bullet({
     Sprite? sprite,
     Vector2? position,
@@ -32,7 +34,7 @@ class Bullet extends SpriteComponent with Hitbox, Collidable{
   void update(double dt) {
     super.update(dt);
 
-    position += Vector2(0,-1) * _speed * dt;
+    position += direction * _speed * dt;
 
     if(position.y < 0) {
       remove();

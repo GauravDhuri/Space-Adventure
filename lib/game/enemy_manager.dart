@@ -6,6 +6,7 @@ import 'package:space_adventure/game/game.dart';
 
 class EnemyManger extends Component with HasGameRef<SpaceAdventure> {
   late Timer _timer;
+  late Timer _freezeTimer;
   SpriteSheet spriteSheet;
   Random random = Random();
 
@@ -14,6 +15,10 @@ class EnemyManger extends Component with HasGameRef<SpaceAdventure> {
       1,
       callback: () => _spawnEnemy(),
       repeat: true,
+    );
+    _freezeTimer = Timer(
+      2,
+      callback: () => _timer.start(),
     );
   }
 
@@ -51,10 +56,17 @@ class EnemyManger extends Component with HasGameRef<SpaceAdventure> {
   void update(double dt) {
     super.update(dt);
     _timer.update(dt);
+    _freezeTimer.update(dt);
   }
 
   void reset() {
     _timer.stop();
     _timer.start();
+  }
+
+  void freeze() {
+    _timer.stop();
+    _freezeTimer.stop();
+    _freezeTimer.start();
   }
 }

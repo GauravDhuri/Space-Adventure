@@ -2,6 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame/geometry.dart';
 import 'package:space_adventure/game/command.dart';
 import 'package:space_adventure/game/enemy.dart';
+import 'package:space_adventure/game/enemy_manager.dart';
 import 'package:space_adventure/game/game.dart';
 import 'package:space_adventure/game/player.dart';
 import 'package:space_adventure/game/power_up_manager.dart';
@@ -87,22 +88,53 @@ class Health extends PowerUp {
   }
 }
 
-// class MultiFire extends PowerUp {
-//   MultiFire({
-//     Vector2? position,
-//     Vector2? size
-//   }) : super(position:  position, size: size);
+class Freeze extends PowerUp {
+  Freeze({
+    Vector2? position,
+    Vector2? size
+  }) : super(position:  position, size: size);
 
-//   @override
-//   Sprite getSprite() {
-//     return Sprite(gameRef.images.fromCache('Shield.png'));
-//   }
+  @override
+  Sprite getSprite() {
+    return PowerUpManager.freezeSprite;
+  }
 
-//   @override
-//   void onActivated() {
-//     final command = Command<Player>(action: (player) {
-//       player.shootMultipleBulletsfn();
-//     });
-//     gameRef.addCommand(command);
-//  }
-//}
+  @override
+  void onActivated() {
+    final command = Command<Enemy>(action: (enemy) {
+      enemy.freeze();
+    });
+    gameRef.addCommand(command);
+
+    final command2 = Command<EnemyManger>(action: (enemyManger) {
+      enemyManger.freeze();
+    });
+    gameRef.addCommand(command2);
+
+    final command3 = Command<PowerUpManager>(action: (powerUpManager) {
+      powerUpManager.freeze();
+    });
+    gameRef.addCommand(command3);
+  }
+}
+
+
+class MultiFire extends PowerUp {
+  MultiFire({
+    Vector2? position,
+    Vector2? size
+  }) : super(position:  position, size: size);
+
+  @override
+  Sprite getSprite() {
+    return Sprite(gameRef.images.fromCache('Double_Fire.png'));
+  }
+
+  @override
+  void onActivated() {
+    final command = Command<Player>(action: (player) {
+      player.shootMultipleBullets();
+    });
+    gameRef.addCommand(command);
+ }
+}
