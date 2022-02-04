@@ -6,6 +6,7 @@ class PlayerData extends ChangeNotifier {
   final List<SpaceshipType> ownedSpaceships;
   final int highScore;
   int money;
+  int currentScore = 0;
 
   PlayerData({
     required this.spaceshipType,

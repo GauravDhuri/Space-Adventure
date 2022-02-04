@@ -1,9 +1,11 @@
 import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
+import 'package:provider/provider.dart';
 import 'package:space_adventure/game/enemy.dart';
 import 'package:space_adventure/game/game.dart';
 import 'package:space_adventure/models/enemy_data.dart';
+import 'package:space_adventure/models/player_data.dart';
 
 class EnemyManger extends Component with HasGameRef<SpaceAdventure> {
   late Timer _timer;
@@ -32,16 +34,36 @@ class EnemyManger extends Component with HasGameRef<SpaceAdventure> {
       gameRef.canvasSize - initialSize /2 
     );
 
-    final enemyData = _enemyDataList.elementAt(random.nextInt(_enemyDataList.length));
+    if(gameRef.buildContext != null) {
+      int currentScore = Provider.of<PlayerData>(gameRef.buildContext!, listen: false).currentScore;
+      int maxLevel = mapScoreToMaxEnemyLevel(currentScore);
 
-    Enemy enemy = Enemy(
-      sprite: spriteSheet.getSpriteById(enemyData.spriteId),
-      size: initialSize,
-      position: position,
-      enemyData: enemyData,
-    );
-    enemy.anchor = Anchor.center;
-    gameRef.add(enemy);
+      final enemyData = _enemyDataList.elementAt(random.nextInt(maxLevel + 1));
+
+      Enemy enemy = Enemy(
+        sprite: spriteSheet.getSpriteById(enemyData.spriteId),
+        size: initialSize,
+        position: position,
+        enemyData: enemyData,
+      );
+        enemy.anchor = Anchor.center;
+        gameRef.add(enemy);
+    }   
+  }
+
+  int mapScoreToMaxEnemyLevel(int score) {
+    int level = 0;
+    if(score> 200) {
+      level = 4;
+    } else if(score > 150) {
+      level = 3;
+    } else if (score > 100) {
+      level = 2;
+    } else if (score > 50) {
+      level = 1;
+    }
+
+    return level;
   }
 
   @override

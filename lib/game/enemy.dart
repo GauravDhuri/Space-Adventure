@@ -20,6 +20,16 @@ class Enemy extends SpriteComponent with HasGameRef<SpaceAdventure>, Hitbox, Col
 
   final EnemyData enemyData;
 
+  int _hitPoints = 10;
+  final TextComponent _hpText = TextComponent('10 HP',
+  textRenderer: TextPaint(
+      config: const TextPaintConfig(
+        color: Colors.white,
+        fontSize: 12,
+        fontFamily: 'BungeeInline',
+      ),
+    ),);
+
   final Random _random = Random();
   Vector2 getRandomVector() {
     return (Vector2.random(_random)- Vector2.random(_random)) * 300;
@@ -35,7 +45,11 @@ class Enemy extends SpriteComponent with HasGameRef<SpaceAdventure>, Hitbox, Col
     required Vector2? position,
     required Vector2? size, 
   }): super(sprite: sprite, position: position, size: size){
+
     _speed = enemyData.speed;
+    _hitPoints = enemyData.level * 10;
+    _hpText.text = '$_hitPoints HP';
+
     _freezeTimer = Timer(2, callback: () {
       _speed = enemyData.speed;
     });
@@ -51,14 +65,19 @@ class Enemy extends SpriteComponent with HasGameRef<SpaceAdventure>, Hitbox, Col
 
     final shape = HitboxCircle(definition: 0.6);
     addShape(shape);
+
+   _hpText.position = Vector2(15,-10);
+    addChild(_hpText);
   }
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, Collidable other) {
     super.onCollision(intersectionPoints, other);
 
-    if(other is Bullet || other is Player) {
-      destroy();
+    if(other is Bullet) {
+      _hitPoints -= other.level * 10;
+    } else if(other is Player) {
+      _hitPoints = 0;
     }
   }
 
@@ -66,7 +85,7 @@ class Enemy extends SpriteComponent with HasGameRef<SpaceAdventure>, Hitbox, Col
       remove();
     
     final command = Command<Player>(action: (player){
-      player.addToScore(1);
+      player.addToScore(enemyData.killPoint);
     });
     gameRef.addCommand(command);
     
@@ -92,6 +111,10 @@ class Enemy extends SpriteComponent with HasGameRef<SpaceAdventure>, Hitbox, Col
   @override
   void update(double dt) {
     super.update(dt);
+    _hpText.text = '$_hitPoints HP';
+    if(_hitPoints <= 0){
+      destroy();
+    }
 
     _freezeTimer.update(dt);
 

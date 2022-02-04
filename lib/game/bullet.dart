@@ -7,10 +7,13 @@ class Bullet extends SpriteComponent with Hitbox, Collidable{
 
   Vector2 direction = Vector2(0,-1);
 
+  final int level;
+
   Bullet({
-    Sprite? sprite,
-    Vector2? position,
-    Vector2? size
+    required Sprite? sprite,
+    required Vector2? position,
+    required Vector2? size,
+    required this.level
   }) : super (sprite: sprite, position: position, size: size);
 
   @override

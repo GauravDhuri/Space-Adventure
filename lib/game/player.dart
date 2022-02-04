@@ -107,6 +107,7 @@ class Player extends SpriteComponent with HasGameRef<SpaceAdventure>, Hitbox, Co
         sprite: gameRef.spriteSheet.getSpriteById(8),
         size: Vector2(64, 64),
         position: this.position.clone(),
+        level: _spaceship.level
       );
 
       bullet.anchor = Anchor.center;
@@ -119,6 +120,7 @@ class Player extends SpriteComponent with HasGameRef<SpaceAdventure>, Hitbox, Co
             sprite: gameRef.spriteSheet.getSpriteById(8),
             size: Vector2(64, 64),
             position: this.position.clone(),
+            level: _spaceship.level
           );
 
           bullet.anchor = Anchor.center;
@@ -165,6 +167,7 @@ class Player extends SpriteComponent with HasGameRef<SpaceAdventure>, Hitbox, Co
   void addToScore(int points){
     _score += points;
     _playerData.money += points;
+    _playerData.currentScore = _score;
   }
 
   void increaseHealthBy(int points) {
