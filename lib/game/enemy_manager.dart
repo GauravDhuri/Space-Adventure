@@ -3,6 +3,7 @@ import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
 import 'package:space_adventure/game/enemy.dart';
 import 'package:space_adventure/game/game.dart';
+import 'package:space_adventure/models/enemy_data.dart';
 
 class EnemyManger extends Component with HasGameRef<SpaceAdventure> {
   late Timer _timer;
@@ -31,10 +32,13 @@ class EnemyManger extends Component with HasGameRef<SpaceAdventure> {
       gameRef.canvasSize - initialSize /2 
     );
 
+    final enemyData = _enemyDataList.elementAt(random.nextInt(_enemyDataList.length));
+
     Enemy enemy = Enemy(
-      sprite: spriteSheet.getSpriteById(3),
+      sprite: spriteSheet.getSpriteById(enemyData.spriteId),
       size: initialSize,
-      position: position
+      position: position,
+      enemyData: enemyData,
     );
     enemy.anchor = Anchor.center;
     gameRef.add(enemy);
@@ -69,4 +73,42 @@ class EnemyManger extends Component with HasGameRef<SpaceAdventure> {
     _freezeTimer.stop();
     _freezeTimer.start();
   }
+
+  static const List<EnemyData> _enemyDataList = [
+    EnemyData(
+      killPoint: 1,
+      speed: 200,
+      spriteId: 3,
+      level: 1,
+      hMove: false,
+    ),
+    EnemyData(
+      killPoint: 6,
+      speed: 250,
+      spriteId: 7,
+      level: 2,
+      hMove: false,
+    ),
+    EnemyData(
+      killPoint: 10,
+      speed: 350,
+      spriteId: 11,
+      level: 3,
+      hMove: false,
+    ),
+    EnemyData(
+      killPoint: 10,
+      speed: 400,
+      spriteId: 0,
+      level: 4,
+      hMove: true,
+    ),
+    EnemyData(
+      killPoint: 50,
+      speed: 250,
+      spriteId: 12,
+      level: 4,
+      hMove: true,
+    )
+  ];
 }

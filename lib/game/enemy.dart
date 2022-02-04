@@ -8,26 +8,41 @@ import 'package:space_adventure/game/bullet.dart';
 import 'package:space_adventure/game/command.dart';
 import 'package:space_adventure/game/game.dart';
 import 'package:space_adventure/game/player.dart';
+import 'package:space_adventure/models/enemy_data.dart';
 
 class Enemy extends SpriteComponent with HasGameRef<SpaceAdventure>, Hitbox, Collidable{
   
   double _speed = 250; 
 
+  Vector2 moveDirection = Vector2(0,1);
+
   late Timer _freezeTimer;
+
+  final EnemyData enemyData;
 
   final Random _random = Random();
   Vector2 getRandomVector() {
     return (Vector2.random(_random)- Vector2.random(_random)) * 300;
   }
 
+  Vector2 getRandomDirection(){
+    return (Vector2.random(_random) - Vector2(0.5,-1)).normalized();
+  }
+
   Enemy({
-    Sprite? sprite,
-    Vector2? position,
-    Vector2? size, 
+    required Sprite? sprite,
+    required this.enemyData,
+    required Vector2? position,
+    required Vector2? size, 
   }): super(sprite: sprite, position: position, size: size){
+    _speed = enemyData.speed;
     _freezeTimer = Timer(2, callback: () {
-      _speed = 250;
+      _speed = enemyData.speed;
     });
+
+    if(enemyData.hMove){
+      moveDirection = getRandomDirection();
+    }
   }
 
   @override
@@ -80,10 +95,12 @@ class Enemy extends SpriteComponent with HasGameRef<SpaceAdventure>, Hitbox, Col
 
     _freezeTimer.update(dt);
 
-    position += Vector2(0,1) * _speed * dt;
+    position += moveDirection * _speed * dt;
 
     if(position.y > gameRef.size.y) {
       remove();
+    } else if((position.x < size.x /2) || position.x > (gameRef.canvasSize.x - size.x /2)){
+      moveDirection.x *= -1;
     }
   }
 
