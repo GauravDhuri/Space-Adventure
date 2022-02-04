@@ -1,5 +1,3 @@
-import 'dart:js';
-
 import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -9,15 +7,13 @@ import 'package:space_adventure/models/spaceship_details.dart';
 import 'package:space_adventure/screens/main_menu.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
   Flame.device.fullScreen();
 
   runApp(
     FutureProvider<PlayerData>(
-      create:  (BuildContext context) {
-        getPlayerData();
-      },
+      create: (BuildContext context) => getPlayerData(),
       initialData: PlayerData.fromMap(PlayerData.defaultData),
       builder: (context, child){
         return ChangeNotifierProvider<PlayerData>.value(
