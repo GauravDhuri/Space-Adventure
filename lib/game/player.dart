@@ -16,8 +16,7 @@ class Player extends SpriteComponent with HasGameRef<SpaceAdventure>, Hitbox, Co
   
   Vector2 _moveDirection = Vector2.zero();
 
-  int _score = 0;
-  int get score => _score;
+  int get score => _playerData.currentScore;
   int _health = 100;
   int get health => _health;
 
@@ -165,9 +164,9 @@ class Player extends SpriteComponent with HasGameRef<SpaceAdventure>, Hitbox, Co
   }
 
   void addToScore(int points){
-    _score += points;
     _playerData.money += points;
-    _playerData.currentScore = _score;
+    _playerData.currentScore += points;
+    _playerData.save();
   }
 
   void increaseHealthBy(int points) {
@@ -178,7 +177,7 @@ class Player extends SpriteComponent with HasGameRef<SpaceAdventure>, Hitbox, Co
   }
 
   void reset() {
-    _score = 0;
+    _playerData.currentScore = 0;
     _health = 100;
     position = gameRef.canvasSize / 2;
   }

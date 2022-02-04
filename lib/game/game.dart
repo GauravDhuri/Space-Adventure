@@ -55,7 +55,7 @@ class SpaceAdventure extends BaseGame with HasCollidables, HasDraggableComponent
       columns: 4,
       rows: 4);
 
-      const spaceType = SpaceshipType.eureka;
+      const spaceType = SpaceshipType.blurryFace;
       final spaceShip = Spaceship.getSpaceshipByType(spaceType);
       
       _player = Player(

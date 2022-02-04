@@ -1,11 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:space_adventure/models/spaceship_details.dart';
 
-class PlayerData extends ChangeNotifier {
+import 'spaceship_details.dart';
+
+part 'player_data.g.dart';
+
+@HiveType(typeId: 0)
+class PlayerData extends ChangeNotifier with HiveObjectMixin {
+
+  @HiveField(0)
   SpaceshipType spaceshipType;
+
+  @HiveField(1)
   final List<SpaceshipType> ownedSpaceships;
+
+  @HiveField(2)
   final int highScore;
+  
+  @HiveField(3)
   int money;
+
   int currentScore = 0;
 
   PlayerData({
@@ -20,7 +35,7 @@ class PlayerData extends ChangeNotifier {
   money = map['money'];
 
   static Map<String, dynamic> defaultData = {
-    'currentSpaceshipType' : SpaceshipType.eureka,
+    'currentSpaceshipType' : SpaceshipType.blurryFace,
     'ownedspaceshipTypes': [],
     'highScore': 0,
     'money': 0,
@@ -43,11 +58,13 @@ class PlayerData extends ChangeNotifier {
       money -= Spaceship.getSpaceshipByType(spaceshipType).cost;
       ownedSpaceships.add(spaceshipType);
       notifyListeners();
+      save();
     }
   }
 
   void equip(SpaceshipType spaceshipType) {
     this.spaceshipType = spaceshipType;
     notifyListeners();
+    save();
   }
 }

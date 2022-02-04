@@ -1,3 +1,7 @@
+import 'package:hive/hive.dart';
+
+part 'spaceship_details.g.dart';
+
 class Spaceship {
   final String name;
   final int cost;
@@ -20,7 +24,7 @@ class Spaceship {
   }
 
   static const Map<SpaceshipType, Spaceship> spaceships = {
-    SpaceshipType.eureka: Spaceship(
+    SpaceshipType.blurryFace: Spaceship(
       name: 'Blurry Face',
       cost: 0,
       speed: 250,
@@ -28,7 +32,7 @@ class Spaceship {
       assetPath: 'assets/images/Space_ship_1.png',
       level: 1
     ),
-    SpaceshipType.destiny: Spaceship(
+    SpaceshipType.squanceInPeace: Spaceship(
       name: 'Squanch In Peace',
       cost: 500,
       speed: 300,
@@ -36,7 +40,7 @@ class Spaceship {
       assetPath: 'assets/images/Space_ship_2.png',
       level: 2
     ),
-    SpaceshipType.enigma: Spaceship(
+    SpaceshipType.anigma: Spaceship(
       name: 'Enigma',
       cost: 1000,
       speed: 450,
@@ -47,8 +51,15 @@ class Spaceship {
   };
 }
 
+@HiveType(typeId: 1)
 enum SpaceshipType {
-  eureka,
-  destiny,
-  enigma
+
+  @HiveField(0)
+  blurryFace,
+
+  @HiveField(1)
+  squanceInPeace,
+
+  @HiveField(2)
+  anigma
 }
