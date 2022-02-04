@@ -27,7 +27,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  flame: ^1.0.0
+  flame: 1.0.0-releasecandidate.13
   provider: ^6.0.2
   carousel_slider: ^4.0.0
   flutter:

@@ -2,7 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame/geometry.dart';
 import 'package:space_adventure/game/enemy.dart';
 
-class Bullet extends SpriteComponent with HasHitboxes, Collidable{
+class Bullet extends SpriteComponent with Hitbox, Collidable{
   final double _speed = 450;
 
   Bullet({
@@ -15,8 +15,8 @@ class Bullet extends SpriteComponent with HasHitboxes, Collidable{
   void onMount() {
     super.onMount();
 
-    final shape = HitboxCircle(normalizedRadius: 0.2);
-    addHitbox(shape);
+    final shape = HitboxCircle(definition: 0.2);
+    addShape(shape);
   }
 
   @override
@@ -24,7 +24,7 @@ class Bullet extends SpriteComponent with HasHitboxes, Collidable{
     super.onCollision(intersectionPoints, other);
 
     if(other is Enemy){
-      removeFromParent();
+      remove();
     }
   }
 
@@ -35,7 +35,7 @@ class Bullet extends SpriteComponent with HasHitboxes, Collidable{
     position += Vector2(0,-1) * _speed * dt;
 
     if(position.y < 0) {
-      removeFromParent();
+      remove();
     }
   } 
 }

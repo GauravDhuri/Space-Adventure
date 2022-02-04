@@ -9,7 +9,7 @@ import 'package:space_adventure/game/command.dart';
 import 'package:space_adventure/game/game.dart';
 import 'package:space_adventure/game/player.dart';
 
-class Enemy extends SpriteComponent with HasGameRef<SpaceAdventure>, HasHitboxes, Collidable{
+class Enemy extends SpriteComponent with HasGameRef<SpaceAdventure>, Hitbox, Collidable{
   
   final double _speed = 250; 
 
@@ -28,8 +28,8 @@ class Enemy extends SpriteComponent with HasGameRef<SpaceAdventure>, HasHitboxes
   void onMount() {
     super.onMount();
 
-    final shape = HitboxCircle(normalizedRadius: 0.6);
-    addHitbox(shape);
+    final shape = HitboxCircle(definition: 0.6);
+    addShape(shape);
   }
 
   @override
@@ -37,15 +37,20 @@ class Enemy extends SpriteComponent with HasGameRef<SpaceAdventure>, HasHitboxes
     super.onCollision(intersectionPoints, other);
 
     if(other is Bullet || other is Player) {
-      removeFromParent();
+      destroy();
+    }
+  }
 
-      final command = Command<Player>(action: (player){
-        player.addToScore(1);
-      });
-      gameRef.addCommand(command);
-
-      final particleComponent = ParticleComponent(
-      Particle.generate(
+  void destroy() {
+      remove();
+    
+    final command = Command<Player>(action: (player){
+      player.addToScore(1);
+    });
+    gameRef.addCommand(command);
+    
+    final particleComponent = ParticleComponent(
+      particle: Particle.generate(
         count: 20,
         lifespan: 0.1,
         generator: (i) => AcceleratedParticle(
@@ -53,15 +58,14 @@ class Enemy extends SpriteComponent with HasGameRef<SpaceAdventure>, HasHitboxes
           speed: getRandomVector(),
           position: position.clone(),
           child: CircleParticle(
-            radius: 1,
-            paint: Paint()..color = Colors.orange
-          )
-        )
-      )
+            radius: 2,
+            paint: Paint()..color = Colors.white,
+          ),
+        ),
+      ),
     );
-
-    gameRef.add(particleComponent);
-    }
+    
+        gameRef.add(particleComponent);
   }
 
   @override
@@ -71,7 +75,7 @@ class Enemy extends SpriteComponent with HasGameRef<SpaceAdventure>, HasHitboxes
     position += Vector2(0,1) * _speed * dt;
 
     if(position.y > gameRef.size.y) {
-      removeFromParent();
+      remove();
     }
   }
 }

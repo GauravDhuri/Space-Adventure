@@ -7,7 +7,7 @@ import 'package:space_adventure/game/enemy.dart';
 import 'package:space_adventure/game/game.dart';
 import 'package:space_adventure/models/spaceship_details.dart';
 
-class Player extends SpriteComponent with HasGameRef<SpaceAdventure>, HasHitboxes, Collidable {
+class Player extends SpriteComponent with HasGameRef<SpaceAdventure>, Hitbox, Collidable {
   
   Vector2 _moveDirection = Vector2.zero();
 
@@ -36,8 +36,8 @@ class Player extends SpriteComponent with HasGameRef<SpaceAdventure>, HasHitboxe
   void onMount() {
     super.onMount();
 
-    final shape = HitboxCircle(normalizedRadius: 0.5);
-    addHitbox(shape);
+    final shape = HitboxCircle(definition: 0.5);
+    addShape(shape);
   }
 
   @override
@@ -60,20 +60,20 @@ class Player extends SpriteComponent with HasGameRef<SpaceAdventure>, HasHitboxe
     position += _moveDirection.normalized() * _spaceship.speed * dt;
     position.clamp(Vector2.zero() + size/2 ,gameRef.size - size/2);
 
-    final particleComponent = ParticleComponent(
-      Particle.generate(
-        count: 5,
+  final particleComponent = ParticleComponent(
+      particle: Particle.generate(
+        count: 10,
         lifespan: 0.1,
         generator: (i) => AcceleratedParticle(
           acceleration: getRandomVector(),
           speed: getRandomVector(),
-          position: position.clone() + Vector2(0, size.y /4),
+          position: (this.position.clone() + Vector2(0, this.size.y / 3)),
           child: CircleParticle(
-            radius: 0.6,
-            paint: Paint()..color =Colors.yellow
-          )
-        )
-      )
+            radius: 1,
+            paint: Paint()..color = Colors.white,
+          ),
+        ),
+      ),
     );
 
     gameRef.add(particleComponent);
@@ -85,6 +85,13 @@ class Player extends SpriteComponent with HasGameRef<SpaceAdventure>, HasHitboxe
 
   void addToScore(int points){
     _score += points;
+  }
+
+  void increaseHealthBy(int points) {
+    _health += points;
+    if (_health > 100 ) {
+      _health = 100;
+    }
   }
 
   void reset() {

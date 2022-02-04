@@ -2,8 +2,9 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
 import 'package:space_adventure/game/enemy.dart';
+import 'package:space_adventure/game/game.dart';
 
-class EnemyManger extends Component with HasGameRef {
+class EnemyManger extends Component with HasGameRef<SpaceAdventure> {
   late Timer _timer;
   SpriteSheet spriteSheet;
   Random random = Random();
@@ -11,9 +12,8 @@ class EnemyManger extends Component with HasGameRef {
   EnemyManger({required this.spriteSheet}) : super() {
     _timer = Timer(
       1,
-      onTick: () => _spawnEnemy(),
+      callback: () => _spawnEnemy(),
       repeat: true,
-      autoStart: true
     );
   }
 

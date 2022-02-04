@@ -21,7 +21,7 @@ class Spaceship {
 
   static const Map<SpaceshipType, Spaceship> spaceships = {
     SpaceshipType.eureka: Spaceship(
-      name: 'Eureka',
+      name: 'Blurry Face',
       cost: 0,
       speed: 250,
       spriteId: 4,
@@ -29,7 +29,7 @@ class Spaceship {
       level: 1
     ),
     SpaceshipType.destiny: Spaceship(
-      name: 'Destiny',
+      name: 'Squanch In Peace',
       cost: 500,
       speed: 300,
       spriteId: 5,

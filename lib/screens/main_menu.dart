@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:space_adventure/screens/game_play.dart';
 import 'package:space_adventure/screens/select_spaceship.dart';
 
 class MainMenu extends StatelessWidget {
