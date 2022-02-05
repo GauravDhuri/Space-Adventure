@@ -1,10 +1,10 @@
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/game.dart';
-import 'package:flame/gestures.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:space_adventure/game/audio_player_component.dart';
 import 'package:space_adventure/game/bullet.dart';
 import 'package:space_adventure/game/command.dart';
 import 'package:space_adventure/game/enemy_manager.dart';
@@ -29,6 +29,8 @@ class SpaceAdventure extends BaseGame with HasCollidables, HasDraggableComponent
   late TextComponent _playerScore;
   late TextComponent _playerHealth;
 
+  late AudioPlayerComponent _audioPlayerComponent;
+
   final _commandList = List<Command>.empty(growable: true);
   final _addLaterCommandList = List<Command>.empty(growable: true);
 
@@ -50,7 +52,10 @@ class SpaceAdventure extends BaseGame with HasCollidables, HasDraggableComponent
         'Double_Fire.png'
       ]);
 
-    spriteSheet = SpriteSheet.fromColumnsAndRows(
+      _audioPlayerComponent = AudioPlayerComponent();
+      add(_audioPlayerComponent);
+
+      spriteSheet = SpriteSheet.fromColumnsAndRows(
       image: images.fromCache('Space_Adventure.png'),
       columns: 4,
       rows: 4);
@@ -82,9 +87,9 @@ class SpaceAdventure extends BaseGame with HasCollidables, HasDraggableComponent
         actions: [
           JoystickAction(
             actionId: 0,
-            size: 60,
+            size: 80,
             margin: const EdgeInsets.all(
-              30,
+              60,
             ),
           ),
         ],
@@ -134,7 +139,14 @@ class SpaceAdventure extends BaseGame with HasCollidables, HasDraggableComponent
       final playerData = Provider.of<PlayerData>(buildContext!,listen: false);
       _player.setSpaceshipType(playerData.spaceshipType);
     }
+    _audioPlayerComponent.playBgm('SpaceAdventureBGM.ogg');
     super.onAttach();
+  }
+
+  @override
+  void onDetach() {
+    _audioPlayerComponent.stopBgm();
+    super.onDetach();
   }
 
   @override

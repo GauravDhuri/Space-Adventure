@@ -4,6 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flame/geometry.dart';
 import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
+import 'package:space_adventure/game/audio_player_component.dart';
 import 'package:space_adventure/game/bullet.dart';
 import 'package:space_adventure/game/command.dart';
 import 'package:space_adventure/game/game.dart';
@@ -83,6 +84,14 @@ class Enemy extends SpriteComponent with HasGameRef<SpaceAdventure>, Hitbox, Col
 
   void destroy() {
       remove();
+
+       gameRef.addCommand(
+        Command<AudioPlayerComponent>(
+          action: (audioPlayer){
+            audioPlayer.playSfx('laser1.ogg');
+          }
+        )
+      );
     
     final command = Command<Player>(action: (player){
       player.addToScore(enemyData.killPoint);

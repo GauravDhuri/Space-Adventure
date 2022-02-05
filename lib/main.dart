@@ -3,22 +3,40 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:space_adventure/models/player_data.dart';
+import 'package:space_adventure/models/settings.dart';
 import 'package:space_adventure/models/spaceship_details.dart';
 import 'package:space_adventure/screens/main_menu.dart';
 import 'package:provider/provider.dart';
 
-Future<void> main() async{
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Flame.device.fullScreen();
+  await Flame.device.fullScreen();
+
+  await initHive();
 
   runApp(
-    FutureProvider<PlayerData>(
-      create: (BuildContext context) => getPlayerData(),
-      initialData: PlayerData.fromMap(PlayerData.defaultData),
-      builder: (context, child){
-        return ChangeNotifierProvider<PlayerData>.value(
-          value: Provider.of<PlayerData>(context),
-          child: child,
+    MultiProvider(
+      providers: [
+        FutureProvider<PlayerData>(
+        create: (BuildContext context) => getPlayerData(),
+        initialData: PlayerData.fromMap(PlayerData.defaultData),
+        ),
+        FutureProvider<Settings>(
+        create: (BuildContext context) => getSettings(),
+        initialData: Settings(soundEffects: false, backgroundMusic: false),
+        ),
+      ],
+      builder: (context, child) {
+        return MultiProvider(
+          providers: [
+            ChangeNotifierProvider<PlayerData>.value(
+              value: Provider.of<PlayerData>(context),
+            ),
+            ChangeNotifierProvider<Settings>.value(
+              value: Provider.of<Settings>(context),
+            ),
+          ],
+          child: child
         );
       },
       child: MaterialApp(
@@ -30,7 +48,7 @@ Future<void> main() async{
           scaffoldBackgroundColor: Colors.black),
         home: const MainMenu(),
       ),
-    )
+    ),
   );
 }
 
@@ -40,16 +58,24 @@ Future<void> initHive() async {
 
   Hive.registerAdapter(PlayerDataAdapter());
   Hive.registerAdapter(SpaceshipTypeAdapter());
+  Hive.registerAdapter(SettingsAdapter());
 }
 
 Future<PlayerData> getPlayerData() async {
 
-  await initHive();
-
-  final box = await Hive.openBox<PlayerData>('PlayerDataBox');
-  final playerData = box.get('PlayerData');
+  final box = await Hive.openBox<PlayerData>(PlayerData.playerDataBox);
+  final playerData = box.get(PlayerData.playerDataKey);
   if(playerData == null){
-    box.put('PlayerData', PlayerData.fromMap(PlayerData.defaultData));
+    box.put(PlayerData.playerDataKey, PlayerData.fromMap(PlayerData.defaultData));
   }
-  return box.get('PlayerData')!;
+  return box.get(PlayerData.playerDataKey)!;
+}
+
+Future<Settings> getSettings() async {
+  final box = await Hive.openBox<Settings>(Settings.settingsBox);
+  final settings = box.get(Settings.settingsKey);
+  if(settings == null){
+    box.put(Settings.settingsKey, Settings(soundEffects: true, backgroundMusic: true));
+  }
+  return box.get(Settings.settingsKey)!;
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:space_adventure/screens/select_spaceship.dart';
+import 'package:space_adventure/screens/settings_menu.dart';
 
 class MainMenu extends StatelessWidget {
   const MainMenu({ Key? key}) : super(key: key);
@@ -44,7 +45,13 @@ class MainMenu extends StatelessWidget {
             SizedBox(
               width: MediaQuery.of(context).size.width / 3,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsMenu()
+                    )
+                  );
+                },
                 child: const Text('Options')
               ),
             ),

@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flame/geometry.dart';
+import 'package:space_adventure/game/audio_player_component.dart';
 import 'package:space_adventure/game/command.dart';
 import 'package:space_adventure/game/enemy.dart';
 import 'package:space_adventure/game/enemy_manager.dart';
@@ -41,6 +42,13 @@ abstract class PowerUp extends SpriteComponent with HasGameRef<SpaceAdventure>, 
   @override
   void onCollision(Set<Vector2> intersectionPoints, Collidable other) {
     if(other is Player) {
+       gameRef.addCommand(
+        Command<AudioPlayerComponent>(
+          action: (audioPlayer){
+            audioPlayer.playSfx('powerUp6.ogg');
+          }
+        )
+      );
       onActivated();
       remove();
     }

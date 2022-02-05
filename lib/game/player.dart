@@ -6,7 +6,9 @@ import 'package:flame/geometry.dart';
 import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:space_adventure/game/audio_player_component.dart';
 import 'package:space_adventure/game/bullet.dart';
+import 'package:space_adventure/game/command.dart';
 import 'package:space_adventure/game/enemy.dart';
 import 'package:space_adventure/game/game.dart';
 import 'package:space_adventure/models/player_data.dart';
@@ -112,6 +114,13 @@ class Player extends SpriteComponent with HasGameRef<SpaceAdventure>, Hitbox, Co
       bullet.anchor = Anchor.center;
       gameRef.add(bullet);
 
+      gameRef.addCommand(
+        Command<AudioPlayerComponent>(
+          action: (audioPlayer){
+            audioPlayer.playSfx('laserSmall_001.ogg');
+          }
+        )
+      );
 
       if (_shootMultipleBullets) {
         for (int i = -1; i < 2; i += 2) {

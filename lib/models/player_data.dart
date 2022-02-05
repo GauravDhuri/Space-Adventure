@@ -9,6 +9,9 @@ part 'player_data.g.dart';
 @HiveType(typeId: 0)
 class PlayerData extends ChangeNotifier with HiveObjectMixin {
 
+  static const String playerDataBox = 'PlayerDataBox';
+  static const String playerDataKey = 'PlayerData';
+
   @HiveField(0)
   SpaceshipType spaceshipType;
 
