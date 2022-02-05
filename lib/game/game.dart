@@ -1,6 +1,7 @@
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/game.dart';
+import 'package:flame/parallax.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -54,6 +55,16 @@ class SpaceAdventure extends BaseGame with HasCollidables, HasDraggableComponent
 
       _audioPlayerComponent = AudioPlayerComponent();
       add(_audioPlayerComponent);
+
+      ParallaxComponent _space = await ParallaxComponent.load(
+        [
+          ParallaxImageData('stars1.png'),
+        ],
+        repeat: ImageRepeat.repeat,
+        baseVelocity: Vector2(0, -50),
+        velocityMultiplierDelta: Vector2(0, 1.5)
+      );
+      add(_space);
 
       spriteSheet = SpriteSheet.fromColumnsAndRows(
       image: images.fromCache('Space_Adventure.png'),

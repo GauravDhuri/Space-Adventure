@@ -53,13 +53,13 @@ class EnemyManger extends Component with HasGameRef<SpaceAdventure> {
 
   int mapScoreToMaxEnemyLevel(int score) {
     int level = 0;
-    if(score> 200) {
+    if(score> 2000) {
       level = 4;
-    } else if(score > 150) {
+    } else if(score > 1000) {
       level = 3;
-    } else if (score > 100) {
+    } else if (score > 500) {
       level = 2;
-    } else if (score > 50) {
+    } else if (score > 100) {
       level = 1;
     }
 
