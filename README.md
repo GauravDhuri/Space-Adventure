@@ -11,7 +11,7 @@ This is a fun and simple clone of a classic space shooter game that I built for 
 
 ## Technologies Used
 
-Game Engine: Flame Engine
-Language: dart
-Graphics: Basic pixel art or sprite images (rom free assets).
-Sound: Background music and sound effects for shooting and enemy destruction.
+- Game Engine: Flame Engine
+- Language: dart
+- Graphics: Basic pixel art or sprite images (rom free assets).
+- Sound: Background music and sound effects for shooting and enemy destruction.
