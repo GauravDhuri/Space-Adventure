@@ -7,6 +7,9 @@ import 'package:space_adventure/models/settings.dart';
 import 'package:space_adventure/models/spaceship_details.dart';
 import 'package:space_adventure/screens/main_menu.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+// ignore: unused_import
+import 'dart:html' as html; // For web-specific storage
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,8 +56,15 @@ Future<void> main() async {
 }
 
 Future<void> initHive() async {
-  final dir = await getApplicationDocumentsDirectory();
-  Hive.init(dir.path);
+  if (kIsWeb) {
+    // Web-specific initialization
+    // Use Hive.init() with a simple path or web-specific storage
+    Hive.init('hive_web_storage'); // You can specify a custom path or use IndexedDB
+  } else {
+    // For mobile/desktop, use the file system
+    final dir = await getApplicationDocumentsDirectory();
+    Hive.init(dir.path);
+  }
 
   Hive.registerAdapter(PlayerDataAdapter());
   Hive.registerAdapter(SpaceshipTypeAdapter());
