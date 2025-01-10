@@ -3,7 +3,7 @@ import 'package:space_adventure/screens/select_spaceship.dart';
 import 'package:space_adventure/screens/settings_menu.dart';
 
 class MainMenu extends StatelessWidget {
-  const MainMenu({ Key? key}) : super(key: key);
+  const MainMenu({ super.key});
 
   @override
   Widget build(BuildContext context) {

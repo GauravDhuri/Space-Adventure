@@ -1,39 +1,43 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'package:space_adventure/game/game.dart';
-import 'package:space_adventure/screens/overlays/game_over_menu.dart';
-import 'package:space_adventure/screens/overlays/pause_button.dart';
-import 'package:space_adventure/screens/overlays/pause_menu.dart';
 
-SpaceAdventure _spaceAdventure = SpaceAdventure();
+import '../game/game.dart';
+import './overlays/pause_button.dart';
+import './overlays/game_over_menu.dart';
+import './overlays/pause_menu.dart';
 
+// This class represents the actual game screen
+// where all the action happens.
 class GamePlay extends StatelessWidget {
-  const GamePlay({ Key? key }) : super(key: key);
+  const GamePlay({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: WillPopScope(
-        onWillPop: () async => false,
-        child: GameWidget(
-          game: _spaceAdventure,
+      // WillPopScope provides us a way to decide if
+      // this widget should be poped or not when user
+      // presses the back button.
+      body: PopScope(
+        canPop: false,
+        // GameWidget is useful to inject the underlying
+        // widget of any class extending from Flame's Game class.
+        child: GameWidget<SpacescapeGame>.controlled(
+          gameFactory: SpacescapeGame.new,
+          // Initially only pause button overlay will be visible.
           initialActiveOverlays: const [PauseButton.id],
           overlayBuilderMap: {
-            PauseButton.id : (
-              BuildContext context, SpaceAdventure gameRef
-            ) => PauseButton(
-              gameRef: gameRef,
-            ),
-            PauseMenu.id : (
-              BuildContext context, SpaceAdventure gameRef
-            ) => PauseMenu(
-              gameRef: gameRef,
-            ),
-            GameOverMenu.id : (
-              BuildContext context, SpaceAdventure gameRef
-            ) => GameOverMenu(
-              gameRef: gameRef,
-            ),
+            PauseButton.id: (BuildContext context, SpacescapeGame game) =>
+                PauseButton(
+                  game: game,
+                ),
+            PauseMenu.id: (BuildContext context, SpacescapeGame game) =>
+                PauseMenu(
+                  game: game,
+                ),
+            GameOverMenu.id: (BuildContext context, SpacescapeGame game) =>
+                GameOverMenu(
+                  game: game,
+                ),
           },
         ),
       ),

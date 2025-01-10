@@ -1,49 +1,70 @@
-import 'package:flame/components.dart';
-import 'package:flame/extensions.dart';
 import 'package:flame/game.dart';
+import 'package:flame/input.dart';
 import 'package:flame/parallax.dart';
 import 'package:flame/sprite.dart';
+import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:space_adventure/game/audio_player_component.dart';
-import 'package:space_adventure/game/bullet.dart';
-import 'package:space_adventure/game/command.dart';
-import 'package:space_adventure/game/enemy_manager.dart';
-import 'package:space_adventure/game/player.dart';
-import 'package:space_adventure/game/power_up_manager.dart';
-import 'package:space_adventure/game/power_ups.dart';
-import 'package:space_adventure/models/player_data.dart';
-import 'package:space_adventure/models/spaceship_details.dart';
-import 'package:space_adventure/screens/overlays/game_over_menu.dart';
-import 'package:space_adventure/screens/overlays/pause_button.dart';
-import 'package:space_adventure/screens/overlays/pause_menu.dart';
+
+import '../screens/overlays/pause_menu.dart';
+import '../screens/overlays/pause_button.dart';
+import '../screens/overlays/game_over_menu.dart';
+
+import '../models/player_data.dart';
+import '../models/spaceship_details.dart';
 
 import 'enemy.dart';
+import 'health_bar.dart';
+import 'player.dart';
+import 'bullet.dart';
+import 'command.dart';
+import 'power_ups.dart';
+import 'enemy_manager.dart';
+import 'power_up_manager.dart';
+import 'audio_player_component.dart';
 
-class SpaceAdventure extends BaseGame with HasCollidables, HasDraggableComponents {
-
+// This class is responsible for initializing and running the game-loop.
+class SpacescapeGame extends FlameGame
+    with HasCollisionDetection, HasKeyboardHandlerComponents {
+  // Stores a reference to player component.
   late Player _player;
+
+  // Stores a reference to the main spritesheet.
   late SpriteSheet spriteSheet;
-  late EnemyManger _enemyManger;
+
+  // Stores a reference to an enemy manager component.
+  late EnemyManager _enemyManager;
+
+  // Stores a reference to an power-up manager component.
   late PowerUpManager _powerUpManager;
 
+  // Displays player score on top left.
   late TextComponent _playerScore;
+
+  // Displays player helth on top right.
   late TextComponent _playerHealth;
 
   late AudioPlayerComponent _audioPlayerComponent;
 
+  // List of commands to be processed in current update.
   final _commandList = List<Command>.empty(growable: true);
+
+  // List of commands to be processed in next update.
   final _addLaterCommandList = List<Command>.empty(growable: true);
 
+  // Indicates weather the game world has been already initialized.
   bool _isAlreadyLoaded = false;
 
-  // Offset? _pointerStartPosition;
-  // Offset? _pointerCurrentPosition;
-  // final double _deadZoneRadius = 10;
- 
+  // Returns the size of the playable area of the game window.
+  Vector2 fixedResolution = Vector2(540, 960);
+
+  // This method gets called by Flame before the game-loop begins.
+  // Assets loading and adding component should be done here.
   @override
   Future<void> onLoad() async {
-    if(!_isAlreadyLoaded){
+    // Initialize the game world only one time.
+    if (!_isAlreadyLoaded) {
+      // Loads and caches all the images for later use.
       await images.loadAll([
         'Space_Adventure.png',
         'Health.png',
@@ -53,102 +74,139 @@ class SpaceAdventure extends BaseGame with HasCollidables, HasDraggableComponent
         'Double_Fire.png'
       ]);
 
-      _audioPlayerComponent = AudioPlayerComponent();
-      add(_audioPlayerComponent);
+      spriteSheet = SpriteSheet.fromColumnsAndRows(
+        image: images.fromCache('Space_Adventure.png'),
+        columns: 4,
+        rows: 4,
+      );
 
-      ParallaxComponent _space = await ParallaxComponent.load(
-        [
+      await add(world);
+
+      // Create a basic joystick component on left.
+      final joystick = JoystickComponent(
+        anchor: Anchor.bottomLeft,
+        position: Vector2(30, fixedResolution.y - 30),
+        // size: 100,
+        background: CircleComponent(
+          radius: 60,
+          paint: Paint()..color = Colors.white.withValues(alpha: 0.5),
+        ),
+        knob: CircleComponent(radius: 30),
+      );
+
+      camera = CameraComponent.withFixedResolution(
+        world: world,
+        width: fixedResolution.x,
+        height: fixedResolution.y,
+      );
+      camera.viewfinder.position = fixedResolution / 2;
+
+      _audioPlayerComponent = AudioPlayerComponent();
+      final stars = await ParallaxComponent.load(
+         [
           ParallaxImageData('stars1.png'),
         ],
         repeat: ImageRepeat.repeat,
         baseVelocity: Vector2(0, -50),
         velocityMultiplierDelta: Vector2(0, 1.5)
       );
-      add(_space);
 
-      spriteSheet = SpriteSheet.fromColumnsAndRows(
-      image: images.fromCache('Space_Adventure.png'),
-      columns: 4,
-      rows: 4);
+      const spaceshipType = SpaceshipType.blurryFace;
+      final spaceship = Spaceship.getSpaceshipByType(spaceshipType);
 
-      const spaceType = SpaceshipType.blurryFace;
-      final spaceShip = Spaceship.getSpaceshipByType(spaceType);
-      
       _player = Player(
-        spaceshipType: spaceType,
-        sprite: spriteSheet.getSpriteById(spaceShip.spriteId),
-        size: Vector2(64,64),
-        position: canvasSize /2
+        joystick: joystick,
+        spaceshipType: spaceshipType,
+        sprite: spriteSheet.getSpriteById(spaceship.spriteId),
+        size: Vector2(64, 64),
+        position: fixedResolution / 2,
       );
-      
+
+      // Makes sure that the sprite is centered.
       _player.anchor = Anchor.center;
-      add(_player);
-      
-      _enemyManger = EnemyManger(spriteSheet: spriteSheet);
-      add(_enemyManger);
 
+      _enemyManager = EnemyManager(spriteSheet: spriteSheet);
       _powerUpManager = PowerUpManager();
-      add(_powerUpManager);
 
-       final joystick = JoystickComponent(
-        gameRef: this,
-        directional: JoystickDirectional(
-          size: 100,
+      // Create a fire button component on right
+      final button = ButtonComponent(
+        button: CircleComponent(
+          radius: 60,
+          paint: Paint()..color = Colors.white.withValues(alpha: 0.5),
         ),
-        actions: [
-          JoystickAction(
-            actionId: 0,
-            size: 80,
-            margin: const EdgeInsets.all(
-              60,
-            ),
-          ),
-        ],
+        anchor: Anchor.bottomRight,
+        position: Vector2(fixedResolution.x - 30, fixedResolution.y - 30),
+        onPressed: _player.joystickAction,
       );
 
-      // Make sure to add player as an observer of this joystick.
-      joystick.addObserver(_player);
-      add(joystick);
-
-    _playerScore = TextComponent(
-        'Score: 0',
+      // Create text component for player score.
+      _playerScore = TextComponent(
+        text: 'Score: 0',
         position: Vector2(10, 10),
         textRenderer: TextPaint(
-          config: const TextPaintConfig(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 12,
             fontFamily: 'BungeeInline',
           ),
         ),
       );
-      _playerScore.isHud = true;
-      add(_playerScore);
-      
-     _playerHealth = TextComponent(
-        'Health: 100%',
-        position: Vector2(size.x - 10, 10),
-        textRenderer: TextPaint(
-          config: const TextPaintConfig(
-            color: Colors.white,
-            fontSize: 12,
-            fontFamily: 'BungeeInline',
-          ),
-        ),
-      );
-      _playerHealth.isHud = true;
-      _playerHealth.anchor = Anchor.topRight;
-      add(_playerHealth);
 
-      camera.defaultShakeIntensity = 20;
+      // Create text component for player health.
+      _playerHealth = TextComponent(
+        text: 'Health: 100%',
+        position: Vector2(fixedResolution.x - 10, 10),
+        textRenderer: TextPaint(
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontFamily: 'BungeeInline',
+          ),
+        ),
+      );
+
+      // Anchor to top right as we want the top right
+      // corner of this component to be at a specific position.
+      _playerHealth.anchor = Anchor.topRight;
+
+      // Add the blue bar indicating health.
+      final healthBar = HealthBar(
+        player: _player,
+        position: _playerHealth.positionOfAnchor(Anchor.topLeft),
+        priority: -1,
+      );
+
+      // Makes the game use a fixed resolution irrespective of the windows size.
+      await world.addAll([
+        _audioPlayerComponent,
+        _player,
+        _enemyManager,
+        _powerUpManager,
+      ]);
+
+      camera.backdrop.add(stars);
+      camera.viewport.addAll([
+        joystick,
+        button,
+        healthBar,
+        _playerScore,
+        _playerHealth,
+      ]);
+
+      // Set this to true so that we do not initilize
+      // everything again in the same session.
+      _isAlreadyLoaded = true;
     }
-    _isAlreadyLoaded = true;
   }
 
+  // This method gets called when game instance gets attached
+  // to Flutter's widget tree.
   @override
   void onAttach() {
-    if(buildContext != null){
-      final playerData = Provider.of<PlayerData>(buildContext!,listen: false);
-      _player.setSpaceshipType(playerData.spaceshipType);
+    if (buildContext != null) {
+      // Get the PlayerData from current build context without registering a listener.
+      final playerData = Provider.of<PlayerData>(buildContext!, listen: false);
+      _player.setPlayerData(playerData);
     }
     _audioPlayerComponent.playBgm('SpaceAdventureBGM.ogg');
     super.onAttach();
@@ -161,175 +219,90 @@ class SpaceAdventure extends BaseGame with HasCollidables, HasDraggableComponent
   }
 
   @override
-    void render(Canvas canvas){
-
-      // if(_pointerStartPosition !=null){
-      //   canvas.drawCircle(
-      //     _pointerStartPosition!,
-      //     60,
-      //     Paint()..color = Colors.grey.withAlpha(100));
-      // }
-
-      // if(_pointerCurrentPosition !=null) {
-      //   var delta = _pointerCurrentPosition! - _pointerStartPosition!;
-      //   if(delta.distance > 60){
-      //     delta = _pointerStartPosition! + (Vector2(delta.dx,delta.dy).normalized() * 60).toOffset();
-      //   } else {
-      //     delta = _pointerCurrentPosition!;
-      //   }
-
-      //   canvas.drawCircle(
-      //     delta,
-      //     20,
-      //     Paint()..color = Colors.white.withAlpha(100));
-      // }
-
-      canvas.drawRect(
-        Rect.fromLTWH(
-          size.x - 110, 10, _player.health.toDouble(),
-          20
-        ),
-        Paint()..color = Colors.green,
-      );
-      super.render(canvas);
-    }
-
-    void addCommand(Command command){
-      _addLaterCommandList.add(command);
-    }
-
-    void reset() {
-      _player.reset();
-      _enemyManger.reset();
-      _powerUpManager.reset();
-
-     components.whereType<Enemy>().forEach((enemy) {
-      enemy.remove();
-    });
-
-    components.whereType<Bullet>().forEach((bullet) {
-      bullet.remove();
-    });
-
-    components.whereType<PowerUp>().forEach((powerUp) {
-      powerUp.remove();
-    });
-    }
-
-  @override
   void update(double dt) {
     super.update(dt);
 
-    _commandList.forEach((commad) {
-      components.forEach((element) {
-        commad.run(element);
-      });
-    });
+    // Run each command from _commandList on each
+    // component from components list. The run()
+    // method of Command is no-op if the command is
+    // not valid for given component.
+    for (var command in _commandList) {
+      for (var component in world.children) {
+        command.run(component);
+      }
+    }
 
+    // Remove all the commands that are processed and
+    // add all new commands to be processed in next update.
     _commandList.clear();
     _commandList.addAll(_addLaterCommandList);
     _addLaterCommandList.clear();
 
-    _playerScore.text = 'Score: ${_player.score}';
-    _playerHealth.text = 'Health: ${_player.health} %';
+    if (isAttached && _player.isReady) {
+      // Update score and health components with latest values.
+      _playerScore.text = 'Score: ${_player.score}';
+      _playerHealth.text = 'Health: ${_player.health}%';
 
-    if(_player.health <= 0 && (!camera.shaking)){
-      pauseEngine();
-      overlays.remove(PauseButton.id);
-      overlays.add(GameOverMenu.id);
+      /// Display [GameOverMenu] when [Player.health] becomes
+      /// zero and camera stops shaking.
+      // if (_player.health <= 0 && (!camera.shaking)) {
+      if (_player.health <= 0) {
+        pauseEngine();
+        overlays.remove(PauseButton.id);
+        overlays.add(GameOverMenu.id);
+      }
     }
   }
 
+  // This method handles state of app and pauses
+  // the game when necessary.
   @override
   void lifecycleStateChange(AppLifecycleState state) {
-
-    switch(state){
+    switch (state) {
       case AppLifecycleState.resumed:
         break;
       case AppLifecycleState.inactive:
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
-        if(_player.health > 0 ){
+      case AppLifecycleState.hidden:
+        if (_player.health > 0) {
           pauseEngine();
           overlays.remove(PauseButton.id);
           overlays.add(PauseMenu.id);
         }
         break;
     }
+
     super.lifecycleStateChange(state);
   }
 
-  // old code better to use Hitbox and Colliable mixins provided in latest flame engine
-  // @override
-  // void update(double dt) {
-  //   super.update(dt);
+  // Adds given command to command list.
+  void addCommand(Command command) {
+    _addLaterCommandList.add(command);
+  }
 
-  //   final bullets = children.whereType<Bullet>();
+  // Resets the game to inital state. Should be called
+  // while restarting and exiting the game.
+  void reset() {
+    // First reset player, enemy manager and power-up manager .
+    _player.reset();
+    _enemyManager.reset();
+    _powerUpManager.reset();
 
-  //   for(final enemy in _enemyManger.children.whereType<Enemy>()){
-  //     if(enemy.shouldRemove){
-  //       continue;
-  //     }
-  //     for(final bullet in bullets){
-  //       if(bullet.shouldRemove){
-  //         continue;
-  //       }
-  //       if(enemy.containsPoint(bullet.absoluteCenter)) {
-  //         enemy.removeFromParent();
-  //         bullet.removeFromParent();
-  //         break;
-  //       }
-  //     }
+    // Now remove all the enemies, bullets and power ups
+    // from the game world. Note that, we are not calling
+    // Enemy.destroy() because it will unnecessarily
+    // run explosion effect and increase players score.
+    world.children.whereType<Enemy>().forEach((enemy) {
+      enemy.removeFromParent();
+    });
 
-  //     if(player.containsPoint(enemy.absoluteCenter)) {
-  //       print("Enemy hit the player");
-  //     }
-  //   }
-  // }
+    world.children.whereType<Bullet>().forEach((bullet) {
+      bullet.removeFromParent();
+    });
 
-  // Navtive Tap Controls 
-  // @override
-  // void onPanStart(DragStartInfo info) {
-  //   _pointerStartPosition = info.eventPosition.global.toOffset();
-  //   _pointerCurrentPosition = info.eventPosition.global.toOffset();
-  // }
-
-  // @override
-  // void onPanUpdate(DragUpdateInfo info) {
-  //   _pointerCurrentPosition = info.eventPosition.global.toOffset();
-
-  //   var delta = _pointerCurrentPosition! - _pointerStartPosition!;
-  //   if(delta.distance > _deadZoneRadius) {
-  //     _player.setMoveDreciton(Vector2(delta.dx,delta.dy));
-  //   } else {
-  //     _player.setMoveDreciton(Vector2.zero());
-  //   }
-  // }
-
-  // @override
-  // void onPanEnd(DragEndInfo info) {
-  //   _pointerStartPosition = null;
-  //   _pointerCurrentPosition = null;
-  //   _player.setMoveDreciton(Vector2.zero());
-  // }
-
-  // @override
-  // void onPanCancel() {
-  //   _pointerStartPosition = null;
-  //   _pointerCurrentPosition = null;
-  //   _player.setMoveDreciton(Vector2.zero());
-  // }
-
-  // @override
-  // void onTapDown(TapDownInfo info) {
-  //   super.onTapDown(info);
-  //   Bullet bullet = Bullet(
-  //      sprite: spriteSheet.getSpriteById(8),
-  //       size: Vector2(64,64),
-  //       position: _player.position.clone()
-  //   );
-
-  //   bullet.anchor = Anchor.center;
-  //   add(bullet);
-  // }
+    world.children.whereType<PowerUp>().forEach((powerUp) {
+      powerUp.removeFromParent();
+    });
+  }
 }

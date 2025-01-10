@@ -1,12 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:space_adventure/game/game.dart';
-import 'package:space_adventure/screens/overlays/pause_menu.dart';
 
+import 'package:flutter/material.dart';
+
+import '../../game/game.dart';
+import 'pause_menu.dart';
+
+// This class represents the pause button overlay.
 class PauseButton extends StatelessWidget {
   static const String id = 'PauseButton';
-  final SpaceAdventure gameRef;
+  final SpacescapeGame game;
 
-  const PauseButton({Key? key, required this.gameRef}): super(key: key);
+  const PauseButton({super.key, required this.game});
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +21,9 @@ class PauseButton extends StatelessWidget {
           color: Colors.white,
         ),
         onPressed: () {
-          gameRef.pauseEngine();
-          gameRef.overlays.add(PauseMenu.id);
-          gameRef.overlays.remove(PauseButton.id);
+          game.pauseEngine();
+          game.overlays.add(PauseMenu.id);
+          game.overlays.remove(PauseButton.id);
         },
       ),
     );

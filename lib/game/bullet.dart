@@ -1,35 +1,49 @@
+import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flame/geometry.dart';
-import 'package:space_adventure/game/enemy.dart';
 
-class Bullet extends SpriteComponent with Hitbox, Collidable{
+import 'enemy.dart';
+
+// This component represent a bullet in game world.
+class Bullet extends SpriteComponent with CollisionCallbacks {
+  // Speed of the bullet.
   final double _speed = 450;
 
-  Vector2 direction = Vector2(0,-1);
+  // Controls the direction in which bullet travels.
+  Vector2 direction = Vector2(0, -1);
 
+  // Level of this bullet. Essentially represents the
+  // level of spaceship that fired this bullet.
   final int level;
 
   Bullet({
-    required Sprite? sprite,
-    required Vector2? position,
-    required Vector2? size,
-    required this.level
-  }) : super (sprite: sprite, position: position, size: size);
+    required super.sprite,
+    required super.position,
+    required super.size,
+    required this.level,
+  });
 
   @override
   void onMount() {
     super.onMount();
 
-    final shape = HitboxCircle(definition: 0.2);
-    addShape(shape);
+    // Adding a circular hitbox with radius as 0.4 times
+    //  the smallest dimension of this components size.
+    final shape = CircleHitbox.relative(
+      0.4,
+      parentSize: size,
+      position: size / 2,
+      anchor: Anchor.center,
+    );
+    add(shape);
   }
 
   @override
-  void onCollision(Set<Vector2> intersectionPoints, Collidable other) {
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
 
-    if(other is Enemy){
-      remove();
+    // If the other Collidable is Enemy, remove this bullet.
+    if (other is Enemy) {
+      removeFromParent();
     }
   }
 
@@ -37,10 +51,13 @@ class Bullet extends SpriteComponent with Hitbox, Collidable{
   void update(double dt) {
     super.update(dt);
 
+    // Moves the bullet to a new position with _speed and direction.
     position += direction * _speed * dt;
 
-    if(position.y < 0) {
-      remove();
+    // If bullet crosses the upper boundary of screen
+    // mark it to be removed it from the game world.
+    if (position.y < 0) {
+      removeFromParent();
     }
-  } 
+  }
 }

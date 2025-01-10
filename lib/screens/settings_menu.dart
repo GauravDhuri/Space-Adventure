@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:space_adventure/models/settings.dart';
 
 class SettingsMenu extends StatelessWidget {
-  const SettingsMenu({ Key? key }) : super(key: key);
+  const SettingsMenu({ super.key });
 
   @override
   Widget build(BuildContext context) {

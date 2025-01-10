@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:space_adventure/models/spaceship_details.dart';
 
-import 'spaceship_details.dart';
-
 part 'player_data.g.dart';
 
 @HiveType(typeId: 0)
