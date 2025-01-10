@@ -30,29 +30,36 @@ class MainMenu extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width / 3,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => const SelectSpaceship()
-                    )
-                  );
-                },
-                child: const Text('Play')
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 5.0),
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width / 3,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => const SelectSpaceship(),
+                      ),
+                    );
+                  },
+                  child: const Text('Play'),
+                ),
               ),
             ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width / 3,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const SettingsMenu()
-                    )
-                  );
-                },
-                child: const Text('Options')
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 5.0),
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width / 3,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const SettingsMenu()
+                      )
+                    );
+                  },
+                  child: const Text('Options')
+                ),
               ),
             ),
           ],

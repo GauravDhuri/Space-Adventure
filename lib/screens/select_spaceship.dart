@@ -110,23 +110,31 @@ class SelectSpaceship extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5.0),
+              child: SizedBox(
               width: MediaQuery.of(context).size.width / 3,
               child: ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pushReplacement(MaterialPageRoute(
                         builder: (context) => const GamePlay()));
                   },
-                  child: const Text('Start')),
+                  child: const Text('Start')
+                ),
+              ),
             ),
-            SizedBox(
+            Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5.0),
+            child: SizedBox(
               width: MediaQuery.of(context).size.width / 3,
               child: ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pushReplacement(MaterialPageRoute(
                         builder: (context) => const MainMenu()));
                   },
-                  child: const Icon(Icons.arrow_back_ios_new_rounded)),
+                  child: const Icon(Icons.arrow_back_ios_new_rounded)
+                ),
+              ),
             ),
           ],
         ),

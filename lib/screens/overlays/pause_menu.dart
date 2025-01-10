@@ -38,48 +38,55 @@ class PauseMenu extends StatelessWidget {
           ),
 
           // Resume button.
-          SizedBox(
-            width: MediaQuery.of(context).size.width / 3,
-            child: ElevatedButton(
-              onPressed: () {
-                game.resumeEngine();
-                game.overlays.remove(PauseMenu.id);
-                game.overlays.add(PauseButton.id);
-              },
-              child: const Text('Resume'),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5.0),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width / 3,
+              child: ElevatedButton(
+                onPressed: () {
+                  game.resumeEngine();
+                  game.overlays.remove(PauseMenu.id);
+                  game.overlays.add(PauseButton.id);
+                },
+                child: const Text('Resume'),
+              ),
             ),
           ),
-
           // Restart button.
-          SizedBox(
-            width: MediaQuery.of(context).size.width / 3,
-            child: ElevatedButton(
-              onPressed: () {
-                game.overlays.remove(PauseMenu.id);
-                game.overlays.add(PauseButton.id);
-                game.reset();
-                game.resumeEngine();
-              },
-              child: const Text('Restart'),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5.0),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width / 3,
+              child: ElevatedButton(
+                onPressed: () {
+                  game.overlays.remove(PauseMenu.id);
+                  game.overlays.add(PauseButton.id);
+                  game.reset();
+                  game.resumeEngine();
+                },
+                child: const Text('Restart'),
+              ),
             ),
           ),
-
           // Exit button.
-          SizedBox(
-            width: MediaQuery.of(context).size.width / 3,
-            child: ElevatedButton(
-              onPressed: () {
-                game.overlays.remove(PauseMenu.id);
-                game.reset();
-                game.resumeEngine();
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5.0),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width / 3,
+              child: ElevatedButton(
+                onPressed: () {
+                  game.overlays.remove(PauseMenu.id);
+                  game.reset();
+                  game.resumeEngine();
 
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (context) => const MainMenu(),
-                  ),
-                );
-              },
-              child: const Text('Exit'),
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => const MainMenu(),
+                    ),
+                  );
+                },
+                child: const Text('Exit'),
+              ),
             ),
           ),
         ],
